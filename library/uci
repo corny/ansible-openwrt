@@ -1,0 +1,119 @@
+#!/usr/bin/lua
+--
+-- Ansible module for LUCI
+--
+
+local fs   = require('nixio.fs')
+local uci  = require('uci').cursor()
+local line = fs.readfile(arg[1])
+
+local ok, json = pcall(require,'luci.json')
+if ok then
+  -- Gluon 2015.1 and before
+  printJSON = function (obj)
+    print(json.encode(obj))
+  end
+else
+  -- Gluon 2015.2 and later
+  json = require('luci.jsonc')
+  printJSON = function (obj)
+    print(json.stringify(obj))
+  end
+end
+
+
+local fail = function (msg)
+  printJSON({failed=true, msg=msg})
+  os.exit(1)
+end
+
+local changed = function (changed)
+  printJSON({changed=changed})
+  os.exit(0)
+end
+
+
+-- split input into command and arguments
+i = string.find(line, " ")
+if not i then
+  fail("unable to parse arguments")
+end
+command = string.sub(line,0,i-1)
+args    = string.sub(line,i+1)
+
+-- evaluate commands
+if command=="set" then
+
+  i = string.find(args, "=", i)
+  if not i then
+    fail("unable to parse key-value pair")
+  end
+  key   = string.sub(args,0,i-1)
+  value = string.sub(args,i+1)
+
+  if not key then
+    fail("key is missing")
+  end
+
+  if not value then
+    fail("value is missing")
+  end
+
+  -- split key
+  config, section = string.match(key, "^([^\.]+)\.([^\.]+)$")
+
+  if config and section then
+    -- create section
+    if uci:get(config, section) then
+      changed(false)
+    end
+    uci:set(config, section, value)
+  else
+    -- set value in existing section
+    config, section, option = string.match(key, "^([^\.]+)\.([^\.]+)\.([^\.]+)$")
+    old = uci:get(config, section, option)
+    if old == value then
+      changed(false)
+    end
+    if not uci:get(config, section) then
+      fail("section " .. section .. " not found")
+    end
+    uci:set(config, section, option, value)
+  end
+
+  uci:commit(config)
+  changed(true)
+
+elseif command=="get_sections" then
+  config, typ = string.match(args, "^([^\.]+)\.([^\.]+)$")
+
+  result = {}
+
+  uci:foreach(config, typ,
+    function (section)
+      local t = {}
+      local name
+      for key,value in pairs(section) do
+        if key==".name" then
+          name = value
+        else
+          t[key] = value
+        end
+      end
+      if name then
+        result[name] = t
+      end
+    end
+  )
+
+  printJSON(result)
+
+elseif command=="get" then
+  config, section, option = string.match(args, "^([^\.]+)\.([^\.]+)\.([^\.]+)$")
+  result = uci:get(config, section, option)
+
+  printJSON({value=result})
+
+else
+  fail("unsupported command: " .. command)
+end

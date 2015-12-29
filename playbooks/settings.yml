@@ -1,0 +1,5 @@
+# ansible-playbook playbooks/settings.yml
+---
+- hosts: all
+  roles:
+  - node-settings

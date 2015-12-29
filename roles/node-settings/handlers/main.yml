@@ -1,0 +1,6 @@
+---
+- name: restart wifi
+  raw: wifi
+
+- name: restart fastd
+  raw: /etc/init.d/fastd restart

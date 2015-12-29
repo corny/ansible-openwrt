@@ -1,0 +1,8 @@
+---
+- name: Set location
+  #  set "system.@system[0].hostname={{inventory_hostname}}"
+  uci_batch: |
+    set "gluon-node-info.@location[0].latitude={{lat}}"
+    set "gluon-node-info.@location[0].longitude={{lon}}"
+    set "gluon-node-info.@location[0].share_location=1"
+    commit

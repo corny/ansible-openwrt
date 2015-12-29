@@ -1,0 +1,4 @@
+---
+channel_24: 6
+channel_5:  44
+fastd_method: salsa2012+umac

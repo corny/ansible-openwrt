@@ -1,0 +1,9 @@
+# ansible-playbook playbooks/fetch-infos.yml
+---
+- hosts: all
+  tasks:
+  - uci: get_sections wireless.wifi-device
+    register: radios
+
+  - debug: var=radios.radio0.channel
+  - debug: var=radios.radio1.channel

@@ -1,0 +1,4 @@
+---
+- hosts: cpe-nodes
+  roles:
+  - poe-passthrough

@@ -1,0 +1,35 @@
+# Configure radios
+---
+- name: Include location
+  include: location.yml
+  when: lat is defined and lon is defined
+  tags: location
+
+- name: apply wifi24 txpower
+  uci: set wireless.radio0.txpower={{txpower_24}}
+  when: txpower_24 is defined
+  tags: txpower
+  notify:
+  - restart wifi
+
+- name: apply wifi5 txpower
+  uci: set wireless.radio1.txpower={{txpower_5}}
+  when: txpower_5 is defined
+  tags: txpower
+  notify:
+  - restart wifi
+
+#- name: apply wifi24 channel
+#  uci: set wireless.radio0.channel={{channel_24}}
+#  notify:
+#  - restart wifi
+
+#- name: apply wifi5 channel
+#  uci: set wireless.radio1.channel={{channel_5}}
+#  notify:
+#  - restart wifi
+
+#- name: apply fastd method
+#  uci: set fastd.mesh_vpn.method={{fastd_method}}
+#  notify:
+#  - restart fastd

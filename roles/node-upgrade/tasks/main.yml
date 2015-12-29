@@ -1,0 +1,9 @@
+---
+- name: Fetch gluon facts
+  gluon: facts
+
+- name: Upload firmware
+  action: scp src={{firmware_path}}/gluon-ffhb-{{firmware_new}}-{{ hardware.model.strip().replace(" ","-").lower() }}-sysupgrade.bin dest=/tmp/sysupgrade.bin
+
+- name: Upgrade firmware
+  raw: sysupgrade /tmp/sysupgrade.bin

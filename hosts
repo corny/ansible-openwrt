@@ -1,0 +1,12 @@
+
+[haus2]
+halle-nord ansible_ssh_host=2a06:8782:ffbb:1337:ea94:f6ff:fef3:31f3
+halle-sued ansible_ssh_host=2a06:8782:ffbb:1337:ea94:f6ff:fee2:1152
+
+[turnhalle]
+turnhalle1.nodes.ffhb.de channel_24=6  channel_5=44 lat=53.124623 lon=8.898936 fastd_method=null
+turnhalle2.nodes.ffhb.de channel_24=11 channel_5=36 lat=53.124597 lon=8.898759
+
+[nodes:children]
+haus2
+turnhalle
